@@ -64,6 +64,7 @@ def connect_to_clickhouse():
 def setup_clickhouse_table(clickhouse_client):
     """
     Create the retail_transaction table if it doesn't exist
+    Using ReplacingMergeTree for soft deletes (latest updated_at wins)
     """
     table_ddl = """
     CREATE TABLE IF NOT EXISTS retail_transaction (
@@ -75,13 +76,13 @@ def setup_clickhouse_table(clickhouse_client):
         created_at DateTime,
         updated_at DateTime,
         deleted_at Nullable(DateTime)
-    ) ENGINE = MergeTree()
-    ORDER BY (id, created_at)
+    ) ENGINE = ReplacingMergeTree(updated_at)
+    ORDER BY (id)
     """
     
     try:
         clickhouse_client.command(table_ddl)
-        logger.info("ClickHouse table setup completed")
+        logger.info("ClickHouse table setup completed (ReplacingMergeTree for soft deletes)")
     except Exception as e:
         logger.error(f"Failed to create ClickHouse table: {e}")
         raise
@@ -99,7 +100,7 @@ def fetch_postgres_data(postgres_conn,last_watermark=None, batch_size=DEFAULT_BA
             SELECT id, customer_id, last_status, pos_origin, pos_destination,
                    created_at, updated_at, deleted_at
             FROM retail_transaction
-            WHERE updated_at > %s
+            WHERE updated_at > %s and deleted_at IS NOT NULL
             ORDER BY updated_at;
         """, (last_watermark,))
     else:
@@ -108,6 +109,7 @@ def fetch_postgres_data(postgres_conn,last_watermark=None, batch_size=DEFAULT_BA
             SELECT id, customer_id, last_status, pos_origin, pos_destination,
                    created_at, updated_at, deleted_at
             FROM retail_transaction
+            WHERE deleted_at IS NOT NULL
             ORDER BY updated_at;
         """)
     
