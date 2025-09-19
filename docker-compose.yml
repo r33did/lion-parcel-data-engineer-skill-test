@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres_de
+      POSTGRES_PASSWORD: dataengineerskilltest
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres_network
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse_db
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_USER: lionparcel
+      CLICKHOUSE_PASSWORD: dataengineermantab
+      CLICKHOUSE_DB: dwh_analytics
+    ports:
+      - "8123:8123"   # HTTP interface
+      - "9000:9000"   # Native TCP client
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - chdata:/var/lib/clickhouse
+    networks:
+      - postgres_network
+
+  etl:
+    build: .
+    container_name: etl-job
+    depends_on:
+      - postgres
+      - clickhouse
+    volumes:
+      - .:/app
+    networks:
+      - postgres_network
+
+volumes:
+  postgres_data:
+  chdata:
+
+networks:
+  postgres_network:
+    driver: bridge
