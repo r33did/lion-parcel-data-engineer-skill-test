@@ -101,7 +101,7 @@ def process_all_json_files():
     
     try:
         consolidated_df.to_csv(CONSOLIDATED_OUTPUT, index=False)
-        logger.info(f"✅ Successfully saved {len(records_list)} records to {CONSOLIDATED_OUTPUT}")
+        logger.info(f"Successfully saved {len(records_list)} records to {CONSOLIDATED_OUTPUT}")
         logger.info(f"Processed {processed_files} JSON files")
     except Exception as save_error:
         logger.error(f"Failed to save CSV file: {save_error}")
@@ -142,7 +142,7 @@ def main():
     """
     Main entry point - starts the scheduler
     """
-    logger.info("📅 JSON ETL Scheduler is starting up...")
+    logger.info("JSON ETL Scheduler is starting up...")
     
     # Create necessary directories
     create_backup_folder()
