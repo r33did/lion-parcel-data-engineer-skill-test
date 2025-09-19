@@ -11,3 +11,9 @@ If you want to run this on your side, you must create the .env for yourself, _wh
 Honestly, my work involved use of AI, i'm not proud of it but also i'm covering that from you guys (there is some inconvenience of time on my side). If you still want to test my technical skill in other way, please do!
 
 And also i finished the bonus task to cleanse json file using python and pandas stack in `bonus_etl_cleanse_json.py`
+
+# Docker Setup
+
+1. Git clone this repo
+2. Use `docker compose up -d` locally
+3. Run the ETL Services either by Docker Desktop if you use Windows, or by command `docker exec -it etl-job bash` from cmd or on your linux sub-system
